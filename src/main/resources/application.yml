@@ -1,0 +1,12 @@
+spring.application.name=short-url
+ server.port=6080
+spring:
+    application:
+     name: short-link-service
+
+      cloud:
+nacos:
+discovery:
+server-addr: 192.168.5.53:8848
+username: nacos
+password: nacos
