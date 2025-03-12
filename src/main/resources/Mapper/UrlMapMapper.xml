@@ -10,9 +10,11 @@
     </resultMap>
 
 
-    <insert id="dbCreate"  useGeneratedKeys="true" keyProperty="urlMap.id">
-        insert into url_map (long_url, short_url, created_at) values (#{urlMap.longUrl}, #{urlMap.shortUrl}, now())
+    <insert id="dbCreate" useGeneratedKeys="true" keyProperty="urlMap.id">
+        insert into url_map (long_url, short_url, created_at)
+        values (#{urlMap.longUrl}, #{urlMap.shortUrl}, now())  <!-- 插入 short_url -->
     </insert>
+
 
     <select id="dbGetShortUrl" resultType="String">
         select short_url from url_map where long_url = #{longUrl}

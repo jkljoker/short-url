@@ -56,12 +56,14 @@ public class ShortUrlServiceImpl implements ShortUrlService {
             return shortUrl;
         }
         // 如果数据库中没有，则创建一条数据
-        UrlMap urlMap = new UrlMap(longUrl);
+        UrlMap urlMap = new UrlMap(longUrl, longUrl);
         urlMapMapper.dbCreate(urlMap);
         //利用base62算法，生成短链
         shortUrl = base62.generateShortUrl(urlMap.getId());
-        //跟新数据库中的记录
-        urlMapMapper.dbUpdate(shortUrl, urlMap.getLongUrl());
+        // 创建新记录并插入数据库
+        urlMap.setShortUrl(shortUrl); // 设置生成的 shortUrl
+        System.out.println(shortUrl);
+        urlMapMapper.dbUpdate(shortUrl, longUrl);
         return shortUrl;
     }
 
