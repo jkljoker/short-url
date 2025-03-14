@@ -49,19 +49,49 @@ public class ShortUrlController {
     @GetMapping("/v2/{shortUrl}")
     public void redirectToLongUrlV2(@PathVariable String shortUrl, HttpServletResponse response) throws IOException {
         String longUrl = shortUrlService.getV2LongUrl(shortUrl);
+        if (longUrl == null) {
+            log.info("redirectToLongUrlV2: {} 此短链无效", shortUrl);
+            response.setStatus(404);
+            return;
+        }
         sendRedirect(longUrl, response);
     }
 
 
+
     @PostMapping("/v2/shorten")
     public ResponseEntity<String> createShortUrlV2(@RequestBody createShortUrlRequest request) {
-        if (request.longUrl == null) {
+        log.info("Received request: {}", request);
+        if (request.longUrl == null || request.longUrl.trim().isEmpty()) {
+            log.warn("Invalid request: longUrl is null or empty");
             return ResponseEntity.fail();
         }
         String shortUrl = shortUrlService.createV2ShortUrl(request.longUrl);
+        log.info("Generated short URL: {}", shortUrl);
         return ResponseEntity.ok(shortUrl);
     }
 
+
+    //  v3
+    @GetMapping("/v3/{shortUrl}")
+    public void redirectToLongUrlV3(@PathVariable String shortUrl, HttpServletResponse response) throws IOException {
+        String longUrl = shortUrlService.getV3LongUrl(shortUrl);
+        if (longUrl == null) {
+            response.setStatus(404);
+            response.getWriter().write("Short URL not found");
+            return;
+        }
+        sendRedirect(longUrl, response);
+    }
+
+    @PostMapping("/v3/shorten")
+    public ResponseEntity<String> createShortUrlV3(@RequestBody createShortUrlRequest request) {
+        if (request.longUrl == null || request.longUrl.isEmpty()) {
+            return ResponseEntity.fail();
+        }
+        String shortUrl = shortUrlService.createV3ShortUrl(request.longUrl);
+        return ResponseEntity.ok(shortUrl);
+    }
 
     // 进行重定向的函数
     //这个方法会向客户端发送 HTTP 302 响应，并通知浏览器跳转到 longUrl 指定的地址。
@@ -74,5 +104,7 @@ public class ShortUrlController {
         response.setStatus(HttpServletResponse.SC_FOUND);  // 302
         response.setHeader("Location", longUrl);
         response.getWriter().write("");  // 确保没有响应内容返回
+
+        log.info("Redirecting to {} with status code {}", longUrl, response.getStatus());
     }
 }
